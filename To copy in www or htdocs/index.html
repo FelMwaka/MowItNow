@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    <div style="width: 60% ; margin:100px auto 0 auto;">
+        <div style="margin:0 auto 30px auto;">
+            <button onclick="mowField()">Run Mowers</button>
+            <button onclick="location.reload();">Refresh all</button>
+        </div>
+        <div id="mycanvas" style="float:left; margin:0 40px auto 0; ">
+            <canvas id="myField" width="300" height="300" style="background-color: #00FF00;">
+			Canvas tag not supported by your browser
+		</canvas>
+        </div>
+
+        <div style="float:left;">
+            <table id="resultats">
+                <tr>
+                    <th>Mower</th>
+                    <th>Xpos</th>
+                    <th>Ypos</th>
+                    <th>Direction</th>
+                </tr>
+
+
+            </table>
+        </div>
+        <script>
+            var canvas = document.getElementById('myField');
+            var ctx = canvas.getContext('2d');
+
+            var xmlhttp = new XMLHttpRequest();
+            var url = "http://localhost:8080/MowIt/MowItNow/Mower/cordinates";
+			
+            var Cordinates = {};//tableux de movements que doit effectuer la tondeuse
+            var Results = {}; //Tableux des derniers positions de chaque tondeuse 
+            var fieldwitdh; // largeur de la surface a tondre
+            var fieldheight; //longueure de la surface a tondre
+            var delta = 50; // un coefficient pour aggrandir les elements affichés pour une meilleur visibilité
+
+            /**
+             * Initialisation des variables à partir de donées JSON reçu par Ajax 
+             * on règle la taille du canvas par la suite.
+             *
+             * @fonction xmlhttp.onreadystatechange
+             */
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    var myJson = JSON.parse(xmlhttp.responseText);
+                    Cordinates = myJson.Mowers;
+                    Results = myJson.EndPosition;
+                    fieldwidth = myJson.FieldWidth;
+                    fieldheight = myJson.FieldHeight;
+                    //on ajoute 1 à la taille de la surface pour faire de la place à la tondeuse en fin de peluse
+                    canvas.width = (fieldwidth + 1) * delta;
+                    canvas.height = (fieldheight + 1) * delta;
+
+                }
+            };
+
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send();
+
+
+            /**
+             * Cette fonction simule les movements de la tondeuse 
+             * On trace un carre sur canvas chaque 500 milliseconds.
+             * une fois que toutes les tondeuses ont fini leur movements on affiche 
+			 * la dernier position de chaque tondeuses et sa direction
+			 *
+             * @fonction mowField()
+             */
+
+            function mowField()
+			{
+                var i = 0;
+
+                (function mow() {
+                    setTimeout(function() {
+
+                        var x = Cordinates[i].X * delta;
+                        var y = (fieldwidth - Cordinates[i].Y) * delta;
+
+                        ctx.fillStyle = 'yellow';
+                        ctx.fillRect(x, y, delta, delta);
+						
+                        if (++i >= Cordinates.length) {//si toutes les tondeuse ont executé leurs commands 
+                            diplayResults();			//on affiche les derniers positions de tondeuses
+                            return;
+                        } else {
+                            requestAnimationFrame(mow);
+                        }
+                    }, 500);
+                })();
+
+            }
+
+            /**
+             * cest d'ici que nous affichons la dernier position de chaque tondeuse
+             * 
+             *
+             * @function diplayResults
+             */
+            function diplayResults() 
+			{
+                var tableResults = document.getElementById("resultats");
+                var j;
+                for (j = 0; j < Results.length; j++) {
+                    var row = tableResults.insertRow(j + 1);
+                    row.insertCell(0).innerHTML = j + 1;
+                    row.insertCell(1).innerHTML = Results[j].X;
+                    row.insertCell(2).innerHTML = Results[j].Y;
+                    row.insertCell(3).innerHTML = Results[j].Direction;
+
+                }
+            }
+        </script>
+
+    </div>
+</body>
+
+</html>
