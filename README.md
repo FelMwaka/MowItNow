@@ -1,6 +1,6 @@
 # MowItNow
 
-Le projet est composé d'un webservice de type REST JSON fait en Java et un client HTML5 javascript.
+Ce projet est composé d'un webservice de type REST JSON fait en Java et un client HTML5 javascript.
 
 Pour l'executer il faut:
 
