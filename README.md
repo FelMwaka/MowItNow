@@ -15,4 +15,4 @@ Pour l'executer il faut:
 5. Lancer le fichier html et demmarer la simulation
 
 
-Le projet Eclipse (dossier MowIt), les sources et les librairies sont disponible et prêt pour compiler. 
+NOTE: Le projet Eclipse (dossier MowIt), les sources et les librairies sont disponible et prêt pour compiler. 
